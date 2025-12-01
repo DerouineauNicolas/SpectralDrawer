@@ -22,7 +22,6 @@ import kotlin.math.min
 fun SoundVisualizer(isRecording: Boolean) {
 
     var amplitudes by remember { mutableStateOf(FloatArray(64)) }
-    val animatedAmps = amplitudes.map { animateFloatAsState(it) }
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -112,8 +111,7 @@ fun SoundVisualizer(isRecording: Boolean) {
                     }
                 }
 
-                recorder.stop()
-                recorder.release()
+
             }
         } else {
             recordJob?.cancel()
@@ -149,7 +147,7 @@ fun SoundVisualizer(isRecording: Boolean) {
 
         if (!isRecording) {
             Text(
-                "Appuie pour enregistrer",
+                "",
                 color = Color.White
             )
         }
