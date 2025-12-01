@@ -6,7 +6,8 @@
 
     <application
         android:label="SpectralDrawer"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:theme="@style/Theme.SpectralDrawer">
         <activity android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

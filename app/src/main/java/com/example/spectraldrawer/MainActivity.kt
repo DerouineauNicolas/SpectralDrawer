@@ -17,14 +17,10 @@ import java.io.File
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var recorder: AudioRecorder
-    private lateinit var outputFile: File
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        outputFile = File(externalCacheDir, "recording.3gp")
-        recorder = AudioRecorder(outputFile)
 
         val permissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
@@ -37,31 +33,29 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            var isRecording by remember { mutableStateOf(false) }
+            MaterialTheme {  // <-- important
+                var isRecording by remember { mutableStateOf(false) }
 
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.background
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
                 ) {
-                    SoundVisualizer(isRecording = isRecording)
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    Button(
-                        onClick = {
-                            if (isRecording) {
-                                recorder.stop()
-                            } else {
-                                recorder.start()
-                            }
-                            isRecording = !isRecording
-                        }
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        Text(if (isRecording) "Arrêter" else "Enregistrer")
+                        SoundVisualizer(isRecording = isRecording)
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        Button(
+                            onClick = {
+                                isRecording = !isRecording
+                            }
+                        ) {
+                            Text(if (isRecording) "Stop" else "Record")
+                        }
                     }
                 }
             }

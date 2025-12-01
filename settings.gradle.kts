@@ -16,6 +16,10 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        // ✅ ADD THE TARSOSDSP REPOSITORY HERE
+        maven {
+            url = uri("https://mvn.0110.be/releases")
+        }
     }
 }
 
