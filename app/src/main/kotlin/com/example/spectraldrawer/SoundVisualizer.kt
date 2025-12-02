@@ -11,11 +11,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.*
 import be.tarsos.dsp.util.fft.FFT
 import kotlin.math.log10
+import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
 
@@ -133,22 +135,28 @@ fun SoundVisualizer(isRecording: Boolean) {
             .background(Color.Black),
         contentAlignment = Alignment.Center
     ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val widthStep = size.width / amplitudes.size
-
-            amplitudes.forEachIndexed { i, amp ->
-                val height = (amp / 60f * size.height).coerceIn(0f, size.height)
-
-                drawRect(
-                    color = Color(0xFF66CCFF),
-                    topLeft = androidx.compose.ui.geometry.Offset(
-                        i * widthStep,
-                        size.height - height
-                    ),
-                    size = androidx.compose.ui.geometry.Size(widthStep - 2, height)
-                )
-            }
+        val bands = amplitudes.size
+        val freqPerBand = 44100 / (bands * 2)
+        Canvas( modifier = Modifier .fillMaxWidth() .height(180.dp) ) {
+            val barWidth = size.width / bands
+            val maxHeight = size.height
+            amplitudes.forEachIndexed { index,
+                amp -> val norm = (amp + 80f) / 80f // normalisation dB simple
+             val barHeight = max(0f, norm) * maxHeight
+                drawRect( color = Color(0xFF66CCFF), topLeft =  androidx.compose.ui.geometry.Offset( x = index * barWidth, y = maxHeight - barHeight ), size = Size(barWidth * 0.9f, barHeight) ) }
         }
+
+
+
+
+        Row( modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween ) {
+            val bands = amplitudes.size
+            val freqPerBand = 44100 / (bands * 2)
+
+            val labels = listOf(0, bands/4, bands/2, 3*bands/4, bands-1)
+            labels.forEach {
+                i -> val freq = i * freqPerBand
+                Text( text = "${freq.toInt()} Hz", color = Color.Gray ) } }
 
         if (!isRecording) {
             Text(
