@@ -17,6 +17,7 @@ import kotlinx.coroutines.*
 import be.tarsos.dsp.util.fft.FFT
 import kotlin.math.log10
 import kotlin.math.min
+import kotlin.math.sqrt
 
 @Composable
 fun SoundVisualizer(isRecording: Boolean) {
@@ -72,14 +73,6 @@ fun SoundVisualizer(isRecording: Boolean) {
                             floatBuffer[i] = shortBuffer[i] / 32768f
                         }
 
-                        // Prepare FFT buffer
-                        System.arraycopy(
-                            floatBuffer,
-                            0,
-                            fftBuffer,
-                            0,
-                            min(floatBuffer.size, fftBuffer.size)
-                        )
 
 // Prepare real+imaginary pairs for FFT
                         var fftIndex = 0
@@ -91,23 +84,35 @@ fun SoundVisualizer(isRecording: Boolean) {
 // Run FFT
                         fft.forwardTransform(fftBuffer)
 
-// Compute magnitude properly
+
                         val newAmps = FloatArray(amplitudes.size)
-                        val bins = bufferSize / 2                     // number of frequency bins
 
-                        val step = bins / newAmps.size
+                        val bins = bufferSize / 2
+                        val usableBins = bins / 2   // 256
 
-                        for (i in newAmps.indices) {
-                            val real = fftBuffer[2 * (i * step)]
-                            val imag = fftBuffer[2 * (i * step) + 1]
+                        val bandSize = usableBins / newAmps.size
 
-                            val magnitude = kotlin.math.sqrt(real * real + imag * imag)
+                        for (band in 0 until newAmps.size) {
 
-                            newAmps[i] = (20 * log10(magnitude + 1e-6))
-                                .coerceAtLeast(0.0).toFloat()
+                            var sum = 0f
+
+                            for (k in 0 until bandSize) {
+                                val bin = band * bandSize + k
+
+                                val real = fftBuffer[2 * bin]
+                                val imag = fftBuffer[2 * bin + 1]
+
+                                sum += sqrt(real * real + imag * imag)
+                            }
+
+                            val magnitude = sum / bandSize
+
+                            newAmps[band] = 20f * log10(magnitude + 1e-6f)
                         }
 
                         amplitudes = newAmps
+
+
                     }
                 }
 
