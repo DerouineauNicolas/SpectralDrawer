@@ -19,10 +19,46 @@ import kotlin.math.log10
 import kotlin.math.min
 import kotlin.math.sqrt
 
+fun computeMagnitudes(fftBuffer: FloatArray, bufferSize: Int, numBands: Int, sampleRate: Int): FloatArray {
+    val newAmps = FloatArray(numBands)
+
+    val bins = bufferSize / 2
+
+    val minFreq = 20.0
+    val maxFreq = sampleRate / 2.0
+    val logMin = log10(minFreq)
+    val logMax = log10(maxFreq)
+    val logRange = logMax - logMin
+
+    for (band in 0 until numBands) {
+        val logFreqLow = logMin + band * logRange / numBands
+        val logFreqHigh = logMin + (band + 1) * logRange / numBands
+        val freqLow = Math.pow(10.0, logFreqLow).toFloat()
+        val freqHigh = Math.pow(10.0, logFreqHigh).toFloat()
+
+        val binLow = (freqLow * bufferSize / sampleRate).toInt().coerceIn(0, bins - 1)
+        val binHigh = (freqHigh * bufferSize / sampleRate).toInt().coerceIn(0, bins - 1)
+
+        var sum = 0f
+        var count = 0
+        for (bin in binLow until min(binHigh, bins)) {
+            val real = fftBuffer[2 * bin]
+            val imag = fftBuffer[2 * bin + 1]
+            sum += sqrt(real * real + imag * imag)
+            count++
+        }
+
+        val magnitude = if (count > 0) sum / count else 0f
+        newAmps[band] = 20f * log10(magnitude + 1e-6f)
+    }
+
+    return newAmps
+}
+
 @Composable
 fun SoundVisualizer(isRecording: Boolean) {
 
-    var amplitudes by remember { mutableStateOf(FloatArray(64)) }
+    var amplitudes by remember { mutableStateOf(FloatArray(256)) }
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -36,7 +72,7 @@ fun SoundVisualizer(isRecording: Boolean) {
             recordJob = coroutineScope.launch(Dispatchers.Default) {
 
                 val sampleRate = 44100
-                val bufferSize = 1024
+                val bufferSize = 2048
 
                 val minBufSize = AudioRecord.getMinBufferSize(
                     sampleRate,
@@ -84,31 +120,7 @@ fun SoundVisualizer(isRecording: Boolean) {
 // Run FFT
                         fft.forwardTransform(fftBuffer)
 
-
-                        val newAmps = FloatArray(amplitudes.size)
-
-                        val bins = bufferSize / 2
-                        val usableBins = bins / 2   // 256
-
-                        val bandSize = usableBins / newAmps.size
-
-                        for (band in 0 until newAmps.size) {
-
-                            var sum = 0f
-
-                            for (k in 0 until bandSize) {
-                                val bin = band * bandSize + k
-
-                                val real = fftBuffer[2 * bin]
-                                val imag = fftBuffer[2 * bin + 1]
-
-                                sum += sqrt(real * real + imag * imag)
-                            }
-
-                            val magnitude = sum / bandSize
-
-                            newAmps[band] = 20f * log10(magnitude + 1e-6f)
-                        }
+                        val newAmps = computeMagnitudes(fftBuffer, bufferSize, amplitudes.size, sampleRate)
 
                         amplitudes = newAmps
 

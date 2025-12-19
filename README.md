@@ -1,19 +1,19 @@
 # SpectralDrawer
 
 A simple real-time audio spectrum visualizer for Android built with **Jetpack Compose** and **AudioRecord**.  
-The app captures microphone audio, performs an FFT, and displays a 64-band frequency spectrum as animated bars.
+The app captures microphone audio, performs an FFT, and displays a 256-band logarithmic frequency spectrum as animated bars.
 
 ## Features
 - Live microphone audio capture
-- Real-time FFT processing
-- 64-band spectrum visualization
+- Real-time FFT processing with 2048-point FFT
+- 256-band logarithmic spectrum visualization
 - Jetpack Compose UI
-- Lightweight and Android-native (no audio dispatcher libraries)
+- Uses TarsosDSP for efficient FFT computation
 
 ## How It Works
-- Audio is read using `AudioRecord`
-- Samples are converted to floats and processed with an FFT
-- Magnitudes are mapped to decibels
+- Audio is read using `AudioRecord` at 44.1kHz
+- Samples are processed with a 2048-point FFT
+- Magnitudes are computed with logarithmic frequency scaling (20Hz - 22kHz)
 - Bars are drawn on a Compose `Canvas` and update in real time
 
 ## Requirements
