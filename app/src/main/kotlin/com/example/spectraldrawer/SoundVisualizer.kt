@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.nativeCanvas
 import kotlinx.coroutines.*
 import be.tarsos.dsp.util.fft.FFT
 import kotlin.math.log10
@@ -141,7 +142,7 @@ fun SoundVisualizer(isRecording: Boolean) {
     // UI
     Box(
         modifier = Modifier
-            .size(300.dp)
+            .size(350.dp, 300.dp)
             .background(Color.Black),
         contentAlignment = Alignment.Center
     ) {
@@ -149,7 +150,12 @@ fun SoundVisualizer(isRecording: Boolean) {
             val widthStep = size.width / amplitudes.size
 
             amplitudes.forEachIndexed { i, amp ->
-                val height = (amp / 60f * size.height).coerceIn(0f, size.height)
+            val minDb = -60f
+            val maxDb = 0f
+
+            val clamped = amp.coerceIn(minDb, maxDb)
+            val normalized = (clamped - minDb) / (maxDb - minDb)
+            val height = normalized * size.height
 
                 drawRect(
                     color = Color(0xFF66CCFF),
@@ -159,6 +165,66 @@ fun SoundVisualizer(isRecording: Boolean) {
                     ),
                     size = androidx.compose.ui.geometry.Size(widthStep - 2, height)
                 )
+            }
+        }
+
+        // Frequency scale labels (bottom)
+        Canvas(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(28.dp)
+                .align(Alignment.BottomCenter)
+        ) {
+            val minFreq = 20f
+            val maxFreq = 20000f
+            val logMin = log10(minFreq)
+            val logMax = log10(maxFreq)
+
+            fun freqToX(freq: Float): Float {
+                val logF = log10(freq)
+                val norm = (logF - logMin) / (logMax - logMin)
+                return norm * size.width
+            }
+
+            drawContext.canvas.nativeCanvas.apply {
+                val paint = android.graphics.Paint().apply {
+                    color = android.graphics.Color.WHITE
+                    textSize = 32f
+                    textAlign = android.graphics.Paint.Align.CENTER
+                }
+
+                val y = size.height - 4f
+                drawText("20Hz", freqToX(20f), y, paint)
+                drawText("200Hz", freqToX(200f), y, paint)
+                drawText("2kHz", freqToX(2000f), y, paint)
+                drawText("20kHz", freqToX(20000f), y, paint)
+            }
+        }
+
+        Canvas(
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(40.dp)
+                .align(Alignment.CenterStart)
+        ) {
+            val minDb = -60f
+            val maxDb = 0f
+
+            fun dbToY(db: Float): Float {
+                val clamped = db.coerceIn(minDb, maxDb)
+                val normalized = (clamped - minDb) / (maxDb - minDb)
+                return size.height * (1f - normalized)
+            }
+
+            drawContext.canvas.nativeCanvas.apply {
+                val paint = android.graphics.Paint().apply {
+                    color = android.graphics.Color.WHITE
+                    textSize = 32f
+                }
+
+                drawText("0dB", 4f, dbToY(0f) + 12f, paint)
+                drawText("-30dB", 4f, dbToY(-30f) + 12f, paint)
+                drawText("-60dB", 4f, dbToY(-60f) + 12f, paint)
             }
         }
 
