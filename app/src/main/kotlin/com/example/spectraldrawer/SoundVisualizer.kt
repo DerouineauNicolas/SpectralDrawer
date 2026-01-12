@@ -20,7 +20,12 @@ import kotlin.math.log10
 import kotlin.math.min
 import kotlin.math.sqrt
 
-fun computeMagnitudes(fftBuffer: FloatArray, bufferSize: Int, numBands: Int, sampleRate: Int): FloatArray {
+fun computeMagnitudes(
+    fftBuffer: FloatArray,
+    bufferSize: Int,
+    numBands: Int,
+    sampleRate: Int
+): FloatArray {
     val newAmps = FloatArray(numBands)
 
     val bins = bufferSize / 2
@@ -59,7 +64,11 @@ fun computeMagnitudes(fftBuffer: FloatArray, bufferSize: Int, numBands: Int, sam
 @Composable
 fun SoundVisualizer(isRecording: Boolean) {
 
-    var amplitudes by remember { mutableStateOf(FloatArray(256)) }
+    val MIN_DB = -60f
+
+    var amplitudes by remember {
+        mutableStateOf(FloatArray(256) { MIN_DB })
+    }
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -121,7 +130,8 @@ fun SoundVisualizer(isRecording: Boolean) {
 // Run FFT
                         fft.forwardTransform(fftBuffer)
 
-                        val newAmps = computeMagnitudes(fftBuffer, bufferSize, amplitudes.size, sampleRate)
+                        val newAmps =
+                            computeMagnitudes(fftBuffer, bufferSize, amplitudes.size, sampleRate)
 
                         amplitudes = newAmps
 
@@ -150,12 +160,12 @@ fun SoundVisualizer(isRecording: Boolean) {
             val widthStep = size.width / amplitudes.size
 
             amplitudes.forEachIndexed { i, amp ->
-            val minDb = -60f
-            val maxDb = 0f
+                val minDb = -60f
+                val maxDb = 0f
 
-            val clamped = amp.coerceIn(minDb, maxDb)
-            val normalized = (clamped - minDb) / (maxDb - minDb)
-            val height = normalized * size.height
+                val clamped = amp.coerceIn(minDb, maxDb)
+                val normalized = (clamped - minDb) / (maxDb - minDb)
+                val height = normalized * size.height
 
                 drawRect(
                     color = Color(0xFF66CCFF),
