@@ -7,6 +7,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -69,8 +70,10 @@ fun SoundVisualizer(isRecording: Boolean) {
 
     val MIN_DB = -60f
 
+    var fftSize by remember { mutableStateOf(2048f) }
+
     var amplitudes by remember {
-        mutableStateOf(FloatArray(256) { MIN_DB })
+        mutableStateOf(FloatArray(2048) { MIN_DB })
     }
 
     val coroutineScope = rememberCoroutineScope()
@@ -79,13 +82,13 @@ fun SoundVisualizer(isRecording: Boolean) {
     var audioRecord by remember { mutableStateOf<AudioRecord?>(null) }
     var recordJob by remember { mutableStateOf<Job?>(null) }
 
-    LaunchedEffect(isRecording) {
+    LaunchedEffect(isRecording, fftSize) {
         if (isRecording) {
 
             recordJob = coroutineScope.launch(Dispatchers.Default) {
 
                 val sampleRate = 44100
-                val bufferSize = 2048
+                val bufferSize = fftSize.toInt()
 
                 val minBufSize = AudioRecord.getMinBufferSize(
                     sampleRate,
@@ -155,10 +158,42 @@ fun SoundVisualizer(isRecording: Boolean) {
     // UI
     Box(
         modifier = Modifier
-            .size(350.dp, 300.dp)
-            .background(Color.Black),
+            .fillMaxWidth()
+            .wrapContentHeight(),
         contentAlignment = Alignment.Center
     ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // FFT Size slider
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    "FFT Size: ${fftSize.toInt()}",
+                    color = Color.White
+                )
+                Slider(
+                    value = fftSize,
+                    onValueChange = { fftSize = it },
+                    valueRange = 256f..4096f,
+                    steps = 5,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .size(350.dp, 300.dp)
+                    .background(Color.Black),
+                contentAlignment = Alignment.Center
+            ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val widthStep = size.width / amplitudes.size
 
@@ -246,6 +281,8 @@ fun SoundVisualizer(isRecording: Boolean) {
                 "",
                 color = Color.White
             )
+        }
+            }
         }
     }
 }
