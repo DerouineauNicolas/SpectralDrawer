@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.spectraldrawer">
+    package="com.ndero.spectraldrawer">
 
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -8,7 +8,7 @@
         android:label="SpectralDrawer"
         android:icon="@mipmap/ic_launcher"
         android:theme="@style/Theme.SpectralDrawer">
-        <activity android:name=".MainActivity"
+        <activity android:name="com.ndero.spectraldrawer.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

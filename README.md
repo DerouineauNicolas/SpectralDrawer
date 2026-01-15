@@ -29,6 +29,20 @@ The app captures microphone audio, performs an FFT, and displays a live logarith
 - Android 6.0+
 - Microphone permission (`RECORD_AUDIO`)
 
+## Privacy Policy
+
+This application uses the device microphone to capture audio in real time
+for the sole purpose of audio analysis and visualization.
+
+No audio data is recorded, stored, or transmitted outside the device.
+All processing is performed locally on the user's device.
+
+The application does not collect, store, or share any personal data
+with third parties.
+
+If you have any questions regarding this privacy policy,
+you can contact the developer at: your@email.com
+
 ## Dependency
 ```gradle
 implementation "com.github.JorenSix:TarsosDSP:2.4.8-android"

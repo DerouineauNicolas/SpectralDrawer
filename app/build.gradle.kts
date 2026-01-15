@@ -4,15 +4,15 @@ plugins {
 }
 
 android {
-    namespace = "com.example.spectraldrawer"
-    compileSdk = 34
+    namespace = "com.ndero.spectraldrawer"
+    compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.spectraldrawer"
+        applicationId = "com.ndero.spectraldrawer"
         minSdk = 26
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        targetSdk = 35
+        versionCode = 2
+        versionName = "2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

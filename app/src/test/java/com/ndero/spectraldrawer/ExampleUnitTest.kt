@@ -1,4 +1,4 @@
-package com.example.spectraldrawer
+package com.ndero.spectraldrawer
 
 import org.junit.Test
 

@@ -1,4 +1,4 @@
-package com.example.spectraldrawer
+package com.ndero.spectraldrawer
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
-import java.io.File
 
 class MainActivity : ComponentActivity() {
 
