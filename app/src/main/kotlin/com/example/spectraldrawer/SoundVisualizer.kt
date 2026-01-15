@@ -55,7 +55,10 @@ fun computeMagnitudes(
         }
 
         val magnitude = if (count > 0) sum / count else 0f
-        newAmps[band] = 20f * log10(magnitude + 1e-6f)
+        // Reduce sensitivity by dividing magnitude by a gain factor and using a higher noise floor
+        val gainFactor = 100f  // Reduce magnitude by factor of 100
+        val adjustedMagnitude = (magnitude / gainFactor).coerceAtLeast(1e-4f)
+        newAmps[band] = 20f * log10(adjustedMagnitude)
     }
 
     return newAmps
